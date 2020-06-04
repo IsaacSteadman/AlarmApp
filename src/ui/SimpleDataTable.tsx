@@ -140,7 +140,7 @@ export class SimpleDataTable extends React.Component<Props, State> {
                       {
                         colSpecs.map(spec => {
                           if (spec.type === 'number') {
-                            const objMinMaxStep = {};
+                            const objMinMaxStep: {min?: number, max?: number, step?: number} = {};
                             if (spec.min != null) {
                               objMinMaxStep.min = spec.min;
                             }
@@ -155,7 +155,7 @@ export class SimpleDataTable extends React.Component<Props, State> {
                                 <Input
                                   value={row.editing[spec.attrName]}
                                   onChange={(e) => onRowsChanged(rows, alterEditingState(rows, idx, spec.attrName, +e.target.value))}
-                                  {...objMinMaxStep}
+                                  inputProps={objMinMaxStep}
                                 />
                               </TableCell>
                             );

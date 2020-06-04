@@ -45,13 +45,9 @@ export class Alarms extends React.Component<Props, State> {
   }
   render() {
     const { alarms, dayGroups, onEditAlarm, onCreateAlarm } = this.props;
+    let alarmEdit: AlarmEdit;
     return (
       <div style={{ width: '100%', height: '100%' }}>
-        <AlarmEdit
-          onEditAlarm={onEditAlarm}
-          onCreateAlarm={onCreateAlarm}
-          dayGroups={dayGroups}
-        />
         <TableContainer>
           <Table className="actionTable">
             <TableHead>
@@ -96,7 +92,7 @@ export class Alarms extends React.Component<Props, State> {
                       {alarm.priority} {alarm.negateAction ? 'Cancel' : 'Run'}
                     </TableCell>
                     <TableCell>
-                      <IconButton style={{ color: 'black' }}>
+                      <IconButton style={{ color: 'black' }} onClick={() => alarmEdit.openAlarm(alarm)}>
                         <EditIcon />
                       </IconButton>
                     </TableCell>
@@ -112,11 +108,17 @@ export class Alarms extends React.Component<Props, State> {
             </TableBody>
           </Table>
         </TableContainer>
+        <AlarmEdit
+          ref={e => alarmEdit = e}
+          onEditAlarm={onEditAlarm}
+          onCreateAlarm={onCreateAlarm}
+          dayGroups={dayGroups}
+        />
         <Fab
           style={bottomRightFabStyle}
           color="primary"
           aria-label="add"
-          onClick={() => this.setState({ showCreateAlarm: true, ...newAlarmObject(new Date()) })}
+          onClick={() => alarmEdit.openAlarm(null)}
         >
           <AddIcon />
         </Fab>

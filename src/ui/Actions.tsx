@@ -10,6 +10,7 @@ import { DayGroup } from '../../common/models/Alarm';
 import { padStart } from 'lodash';
 import { bottomRightFabStyle } from './utils';
 import { Action } from '../../common/models/Action';
+import { ActionEdit } from './ActionEdit';
 
 export interface CommonProps {
 }
@@ -102,6 +103,7 @@ export class Actions extends React.Component<Props, State> {
             }
           </TableBody>
         </Table>
+        <ActionEdit actions={actions} />
         <Fab color="primary" style={{ ...bottomRightFabStyle }}>
           <AddIcon />
         </Fab>

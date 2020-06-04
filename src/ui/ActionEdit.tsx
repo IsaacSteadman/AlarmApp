@@ -473,7 +473,7 @@ export class ActionEdit extends React.Component<Props, State> {
           dialogType === 'http' ? (
             <>
               <FormControlLabel
-                label="Action"
+                label="HTTP URL"
                 labelPlacement="top"
                 control={<Input value={httpUrl} onChange={(e) => {
                   this.setState({
@@ -482,7 +482,7 @@ export class ActionEdit extends React.Component<Props, State> {
                 }} type="text" name="httpUrl" />}
               />
               <FormControlLabel
-                label="Action"
+                label="HTTP Method"
                 labelPlacement="top"
                 control={
                   <Select
@@ -533,33 +533,51 @@ export class ActionEdit extends React.Component<Props, State> {
                   )
                 }
               />
-              <Select
-                name="httpBodyType"
-                value={httpBodyType}
-                onChange={e => this.setState({ httpBodyType: e.target.value as ('string' | 'binary') })}
-              >
-                <option value="string">String (provided as normal text)</option>
-                <option value="binary">Binary (provided as hexadecimal)</option>
-              </Select>
+              <FormControlLabel
+                label="Request Body Format"
+                labelPlacement="top"
+                control={
+                  <Select
+                    name="httpBodyType"
+                    value={httpBodyType}
+                    onChange={e => this.setState({ httpBodyType: e.target.value as ('string' | 'binary') })}
+                  >
+                    <option value="string">String (provided as normal text)</option>
+                    <option value="binary">Binary (provided as hexadecimal)</option>
+                  </Select>
+                }
+              />
               {
                 httpBodyType === 'string' ? (
-                  <TextareaAutosize
-                    name="httpBodyString"
-                    value={httpBodyString}
-                    onChange={e => this.setState({
-                      httpBodyString: e.target.value,
-                      httpBodyStringValid: true
-                    })}
+                  <FormControlLabel
+                    label="Request Body"
+                    labelPlacement="top"
+                    control={
+                      <TextareaAutosize
+                        name="httpBodyString"
+                        value={httpBodyString}
+                        onChange={e => this.setState({
+                          httpBodyString: e.target.value,
+                          httpBodyStringValid: true
+                        })}
+                      />
+                    }
                   />
                 ) : (
-                    <TextareaAutosize
-                      name="httpBodyString"
-                      value={httpBodyBinary}
-                      style={httpBodyBinaryValid ? validStyle : invalidStyle}
-                      onChange={e => this.setState({
-                        httpBodyBinary: e.target.value,
-                        httpBodyBinaryValid: /^([0-9a-fA-F]{2})+$/.test(e.target.value)
-                      })}
+                    <FormControlLabel
+                      label="Request Body"
+                      labelPlacement="top"
+                      control={
+                        <TextareaAutosize
+                          name="httpBodyBinary"
+                          value={httpBodyBinary}
+                          style={httpBodyBinaryValid ? validStyle : invalidStyle}
+                          onChange={e => this.setState({
+                            httpBodyBinary: e.target.value,
+                            httpBodyBinaryValid: /^([0-9a-fA-F]{2})+$/.test(e.target.value)
+                          })}
+                        />
+                      }
                     />
                   )
               }
@@ -569,6 +587,107 @@ export class ActionEdit extends React.Component<Props, State> {
         {
           dialogType === 'file' ? (
             <>
+              <FormControlLabel
+                label="Filename"
+                labelPlacement="top"
+                control={
+                  <Input
+                    type="text"
+                    name="fileFilename"
+                    value={fileFilename}
+                    onChange={e => this.setState({ fileFilename: e.target.value })}
+                  />
+                }
+              />
+              <FormControlLabel
+                label="Format Of Data To Write"
+                labelPlacement="top"
+                control={
+                  <Select
+                    name="fileDataToWriteType"
+                    value={fileDataToWriteType}
+                    onChange={e => this.setState({ fileDataToWriteType: e.target.value as ('string' | 'binary') })}
+                  >
+                    <option value="string">String (provided as normal text)</option>
+                    <option value="binary">Binary (provided as hexadecimal)</option>
+                  </Select>
+                }
+              />
+              {
+                httpBodyType === 'string' ? (
+                  <FormControlLabel
+                    label="File Data To Write"
+                    labelPlacement="top"
+                    control={
+                      <TextareaAutosize
+                        name="fileDataToWriteString"
+                        value={fileDataToWriteString}
+                        onChange={e => this.setState({
+                          fileDataToWriteString: e.target.value,
+                          fileDataToWriteStringValid: true
+                        })}
+                      />
+                    }
+                  />
+                ) : (
+                    <FormControlLabel
+                      label="File Data To Write"
+                      labelPlacement="top"
+                      control={
+                        <TextareaAutosize
+                          name="fileDataToWriteBinary"
+                          value={fileDataToWriteBinary}
+                          style={fileDataToWriteBinaryValid ? validStyle : invalidStyle}
+                          onChange={e => this.setState({
+                            fileDataToWriteBinary: e.target.value,
+                            fileDataToWriteBinaryValid: /^([0-9a-fA-F]{2})+$/.test(e.target.value)
+                          })}
+                        />
+                      }
+                    />
+                  )
+              }
+              <FormControlLabel
+                label="File Action"
+                labelPlacement="top"
+                control={
+                  <Select
+                    name="fileAction"
+                    value={fileAction}
+                    onChange={e => this.setState({ fileAction: e.target.value as FileActionType })}
+                  >
+                    <option value="clear">Clear (file is cleared before writing)</option>
+                    <option value="reuse">End (file is not cleared before writing)</option>
+                  </Select>
+                }
+              />
+              <FormControlLabel
+                label="File Offset To Write At"
+                labelPlacement="top"
+                control={
+                  <Input
+                    type="text"
+                    name="fileOffset"
+                    value={fileOffset}
+                    inputProps={{step: 1}}
+                    onChange={e => this.setState({ fileOffset: +e.target.value })}
+                  />
+                }
+              />
+              <FormControlLabel
+                label="File Offset From Where"
+                labelPlacement="top"
+                control={
+                  <Select
+                    name="fileWhence"
+                    value={fileWhence}
+                    onChange={e => this.setState({ fileWhence: e.target.value as FileWhence })}
+                  >
+                    <option value="start">Start (beginning of file is 0)</option>
+                    <option value="end">End (end of file is 0)</option>
+                  </Select>
+                }
+              />
             </>
           ) : ''
         }
@@ -596,7 +715,7 @@ export class ActionEdit extends React.Component<Props, State> {
                 ]}
                 rows={compositeSubActions}
                 onRowsChanged={
-                  (prevRows, newRows) => this.setState({ compositeSubActions: newRows })
+                  (prevRows: SubActionRow[], newRows: SubActionRow[]) => this.setState({ compositeSubActions: newRows })
                 }
               />
             </>
