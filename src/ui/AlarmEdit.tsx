@@ -8,6 +8,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Alarm, DayGroup } from '../../common/models/Alarm';
 import { padStart } from 'lodash';
 import { bottomRightFabStyle } from './utils';
+import { Action } from '../../common/models/Action';
 
 function getDateHoursMinutes(): Date;
 function getDateHoursMinutes(hours: number, minutes: number, isPM: boolean): Date;
@@ -70,6 +71,7 @@ export interface Props extends CommonProps {
   onCreateAlarm: (alarm: Alarm) => Promise<boolean> | boolean; // return true to confirm close
   onEditAlarm: (alarm: Alarm) => Promise<boolean> | boolean;
   dayGroups: DayGroup[];
+  actions: Action[];
 }
 
 export interface State extends CommonProps {
@@ -212,7 +214,7 @@ export class AlarmEdit extends React.Component<Props, State> {
       alarmIsThursday, alarmIsFriday, alarmIsSaturday, alarmDayGroup, alarmHours,
       alarmMinutes, alarmIsPM, dialogUseDow, show
     } = this.state;
-    const { dayGroups } = this.props;
+    const { dayGroups, actions } = this.props;
     return (
       <Dialog
         open={show !== 'none'}
@@ -232,11 +234,23 @@ export class AlarmEdit extends React.Component<Props, State> {
         <FormControlLabel
           label="Action"
           labelPlacement="top"
-          control={<Input value={alarmAction} onChange={(e) => {
-            this.setState({
-              alarmAction: e.target.value
-            });
-          }} type="text" name="action" />}
+          control={
+            <Select
+              value={alarmAction}
+              onChange={(e) => {
+                this.setState({
+                  alarmAction: e.target.value as string
+                });
+              }}
+              name="action"
+            >
+              {
+                actions.map(action => (
+                  <option value={action.name}>{action.name}</option>
+                ))
+              }
+            </Select>
+          }
         />
         <FormControl>
           <InputLabel htmlFor="alarm-edit-negate-action">Negate Action</InputLabel>
@@ -277,99 +291,114 @@ export class AlarmEdit extends React.Component<Props, State> {
             />
           }
         />
-        <Grid container>
-          <FormControlLabel
-            label="Sun"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsSunday}
-                onChange={e => this.setState({ alarmIsSunday: e.target.checked })}
+        {
+          dialogUseDow ? (
+            <Grid container>
+              <FormControlLabel
+                label="Sun"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsSunday}
+                    onChange={e => this.setState({ alarmIsSunday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Mon"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsMonday}
-                onChange={e => this.setState({ alarmIsMonday: e.target.checked })}
+              <FormControlLabel
+                label="Mon"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsMonday}
+                    onChange={e => this.setState({ alarmIsMonday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Tues"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsTuesday}
-                onChange={e => this.setState({ alarmIsTuesday: e.target.checked })}
+              <FormControlLabel
+                label="Tues"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsTuesday}
+                    onChange={e => this.setState({ alarmIsTuesday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Wed"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsWednesday}
-                onChange={e => this.setState({ alarmIsWednesday: e.target.checked })}
+              <FormControlLabel
+                label="Wed"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsWednesday}
+                    onChange={e => this.setState({ alarmIsWednesday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Thu"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsThursday}
-                onChange={e => this.setState({ alarmIsThursday: e.target.checked })}
+              <FormControlLabel
+                label="Thu"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsThursday}
+                    onChange={e => this.setState({ alarmIsThursday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Fri"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsFriday}
-                onChange={e => this.setState({ alarmIsFriday: e.target.checked })}
+              <FormControlLabel
+                label="Fri"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsFriday}
+                    onChange={e => this.setState({ alarmIsFriday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-          <FormControlLabel
-            label="Sat"
-            labelPlacement="start"
-            control={
-              <Checkbox
-                value={alarmIsSaturday}
-                onChange={e => this.setState({ alarmIsSaturday: e.target.checked })}
+              <FormControlLabel
+                label="Sat"
+                labelPlacement="start"
+                control={
+                  <Checkbox
+                    value={alarmIsSaturday}
+                    onChange={e => this.setState({ alarmIsSaturday: e.target.checked })}
+                  />
+                }
               />
-            }
-          />
-        </Grid>
-        <FormControlLabel
-          label="Day Group Name"
-          labelPlacement="top"
-          hidden={dialogUseDow}
-          control={
-            <Select value={alarmDayGroup} onChange={e => this.setState({ alarmDayGroup: e.currentTarget.value as string })}>
-              {
-                dayGroups.map(dayGroup => (
-                  <option value={dayGroup.name}>{dayGroup.name}</option>
-                ))
-              }
-            </Select>
-          }
-        />
-        <IconButton hidden={show !== 'edit'} style={{ color: 'green' }} onClick={() => this.editAlarm()}>
-          <DoneIcon />
-        </IconButton>
-        <IconButton hidden={show !== 'edit'} style={{ color: 'red' }} onClick={() => this.setState({ show: 'none' })}>
-          <CloseIcon />
-        </IconButton>
-        <Button hidden={show !== 'create'} variant="contained" color="primary" onClick={() => this.createAlarm()}>Add</Button>
+            </Grid>
+          ) : (
+              <FormControlLabel
+                label="Day Group Name"
+                labelPlacement="top"
+                hidden={dialogUseDow}
+                control={
+                  <Select value={alarmDayGroup} onChange={e => this.setState({ alarmDayGroup: e.currentTarget.value as string })}>
+                    {
+                      dayGroups.map(dayGroup => (
+                        <option value={dayGroup.name}>{dayGroup.name}</option>
+                      ))
+                    }
+                  </Select>
+                }
+              />
+            )
+        }
+        {
+          show === 'edit' ? (
+            <Grid>
+              <IconButton style={{ color: 'green' }} onClick={() => this.editAlarm()}>
+                <DoneIcon />
+              </IconButton>
+              <IconButton style={{ color: 'red' }} onClick={() => this.setState({ show: 'none' })}>
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+          ) : ''
+        }
+        {
+          show === 'create' ? (
+            <Button variant="contained" color="primary" onClick={() => this.createAlarm()}>Add</Button>
+          ) : ''
+        }
       </Dialog>);
   }
 }

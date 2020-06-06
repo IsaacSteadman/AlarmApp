@@ -17,6 +17,8 @@ export interface CommonProps {
 
 export interface Props extends CommonProps {
   actions: Action[]
+  onCreateAction: (action: Action) => Promise<boolean> | boolean; // return true to confirm close
+  onEditAction: (action: Action) => Promise<boolean> | boolean;
 }
 
 export interface State extends CommonProps {
@@ -28,7 +30,8 @@ export class Actions extends React.Component<Props, State> {
     this.state = {};
   }
   render() {
-    const { actions } = this.props;
+    const { actions, onCreateAction, onEditAction } = this.props;
+    let actionEdit: ActionEdit;
     return (
       <TableContainer>
         <Table className="actionTable">
@@ -43,7 +46,7 @@ export class Actions extends React.Component<Props, State> {
           </TableHead>
           <TableBody>
             {
-              actions.map(action => {
+              actions.map(action => (
                 <TableRow>
                   <TableCell>{action.name}</TableCell>
                   <TableCell>{action.description}</TableCell>
@@ -67,7 +70,7 @@ export class Actions extends React.Component<Props, State> {
                     } else if (action.type === 'gpio-set') {
                       return (
                         <>
-                          <TableCell>Gpio Set</TableCell>
+                          <TableCell>Set GPIO</TableCell>
                           <TableCell>{`sets pin ${action.pin} to ${action.value}`}</TableCell>
                         </>
                       );
@@ -98,13 +101,17 @@ export class Actions extends React.Component<Props, State> {
                     </IconButton>
                   </TableCell>
                 </TableRow>
-
-              })
+              ))
             }
           </TableBody>
         </Table>
-        <ActionEdit actions={actions} />
-        <Fab color="primary" style={{ ...bottomRightFabStyle }}>
+        <ActionEdit
+          actions={actions}
+          ref={e => actionEdit = e}
+          onCreateAction={onCreateAction}
+          onEditAction={onEditAction}
+        />
+        <Fab color="primary" style={{ ...bottomRightFabStyle }} onClick={() => actionEdit.openAction(null)}>
           <AddIcon />
         </Fab>
       </TableContainer>

@@ -117,7 +117,7 @@ export class SimpleDataTable extends React.Component<Props, State> {
           <TableBody>
             {
               rows.map((row, idx) => (
-                row.editing ? (
+                row.editing == null ? (
                   <TableRow>
                     {
                       colSpecs.map(spec => (
@@ -125,13 +125,13 @@ export class SimpleDataTable extends React.Component<Props, State> {
                       ))
                     }
                     <TableCell>
-                      <IconButton style={{ color: 'green' }} onClick={() => onRowsChanged(rows, alterStateSaveEditing(rows, idx))}>
-                        <DoneIcon />
+                      <IconButton style={{ color: 'black' }} onClick={() => onRowsChanged(rows, alterStateSetEditing(rows, idx))}>
+                        <EditIcon />
                       </IconButton>
                     </TableCell>
                     <TableCell>
-                      <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateCancelEditing(rows, idx))}>
-                        <CloseIcon />
+                      <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateDeleteRow(rows, idx))}>
+                        <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -140,7 +140,7 @@ export class SimpleDataTable extends React.Component<Props, State> {
                       {
                         colSpecs.map(spec => {
                           if (spec.type === 'number') {
-                            const objMinMaxStep: {min?: number, max?: number, step?: number} = {};
+                            const objMinMaxStep: { min?: number, max?: number, step?: number } = {};
                             if (spec.min != null) {
                               objMinMaxStep.min = spec.min;
                             }
@@ -186,13 +186,13 @@ export class SimpleDataTable extends React.Component<Props, State> {
                         })
                       }
                       <TableCell>
-                        <IconButton style={{ color: 'black' }} onClick={() => onRowsChanged(rows, alterStateSetEditing(rows, idx))}>
-                          <EditIcon />
+                        <IconButton style={{ color: 'green' }} onClick={() => onRowsChanged(rows, alterStateSaveEditing(rows, idx))}>
+                          <DoneIcon />
                         </IconButton>
                       </TableCell>
                       <TableCell>
-                        <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateDeleteRow(rows, idx))}>
-                          <DeleteIcon />
+                        <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateCancelEditing(rows, idx))}>
+                          <CloseIcon />
                         </IconButton>
                       </TableCell>
                     </TableRow>

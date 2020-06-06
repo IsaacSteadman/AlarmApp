@@ -11,10 +11,10 @@ import { padStart } from 'lodash';
 import { bottomRightFabStyle } from './utils';
 
 export interface CommonProps {
-  daySelectors: DaySelector[];
 }
 
 export interface Props extends CommonProps {
+  daySelectors: DaySelector[];
 }
 
 export interface State extends CommonProps {
@@ -23,10 +23,10 @@ export interface State extends CommonProps {
 export class DaySelectors extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = Object.assign({}, props);
+    this.state = {};
   }
   render() {
-    const { daySelectors } = this.state;
+    const { daySelectors } = this.props;
     return (
       <TableContainer>
         <Table className="actionTable">

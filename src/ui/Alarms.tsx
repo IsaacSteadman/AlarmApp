@@ -31,6 +31,7 @@ export interface CommonProps {
 export interface Props extends CommonProps {
   alarms: Alarm[];
   dayGroups: DayGroup[];
+  actions: Action[];
   onCreateAlarm: (alarm: Alarm) => Promise<boolean> | boolean; // return true to confirm close
   onEditAlarm: (alarm: Alarm) => Promise<boolean> | boolean;
 }
@@ -44,7 +45,7 @@ export class Alarms extends React.Component<Props, State> {
     this.state = {};
   }
   render() {
-    const { alarms, dayGroups, onEditAlarm, onCreateAlarm } = this.props;
+    const { alarms, dayGroups, actions, onEditAlarm, onCreateAlarm } = this.props;
     let alarmEdit: AlarmEdit;
     return (
       <div style={{ width: '100%', height: '100%' }}>
@@ -86,7 +87,7 @@ export class Alarms extends React.Component<Props, State> {
                       {formatTime(alarm.hour, alarm.minute, alarm.isPM)}
                     </TableCell>
                     <TableCell>
-                      {alarm.action}
+                      {alarm.action.name}
                     </TableCell>
                     <TableCell>
                       {alarm.priority} {alarm.negateAction ? 'Cancel' : 'Run'}
@@ -113,6 +114,7 @@ export class Alarms extends React.Component<Props, State> {
           onEditAlarm={onEditAlarm}
           onCreateAlarm={onCreateAlarm}
           dayGroups={dayGroups}
+          actions={actions}
         />
         <Fab
           style={bottomRightFabStyle}

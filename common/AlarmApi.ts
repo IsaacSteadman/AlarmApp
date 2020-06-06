@@ -1,12 +1,16 @@
 import { Alarm, DayGroup, DaySelector } from "./models/Alarm";
 import { Action } from "./models/Action";
-import { cloneDeep } from "lodash";
+import { cloneDeep, clone } from "lodash";
 
 export abstract class AlarmApi {
   abstract async getAlarms(): Promise<Alarm[]>;
   abstract async getDaySelectors(): Promise<DaySelector[]>;
   abstract async getDayGroups(): Promise<DayGroup[]>;
   abstract async getActions(): Promise<Action[]>;
+  abstract async putAlarm(alarm: Alarm): Promise<Alarm[]>;
+  abstract async putDaySelector(ds: DaySelector): Promise<DaySelector[]>;
+  abstract async putDayGroup(dg: DayGroup): Promise<DayGroup[]>;
+  abstract async putAction(action: Action): Promise<Action[]>;
   abstract async postAlarm(alarm: Alarm): Promise<Alarm[]>;
   abstract async postDaySelector(ds: DaySelector): Promise<DaySelector[]>;
   abstract async postDayGroup(dg: DayGroup): Promise<DayGroup[]>;
@@ -45,6 +49,12 @@ export class AlarmApiWrapper {
     this.fillDaySelectors();
     this.fillDayGroups();
     this.fillActions();
+    return {
+      alarms: this.alarms,
+      daySelectors: this.daySelectors,
+      dayGroups: this.dayGroups,
+      actions: this.actions
+    };
   }
   keyActions() {
     this.actionsObj = {};
@@ -68,42 +78,90 @@ export class AlarmApiWrapper {
     this.keyActions();
     this.fillActions();
     this.fillAlarmsActions();
+    this.alarms = clone(this.alarms)
+    return {
+      alarms: this.alarms,
+      actions: this.actions
+    };
   }
   updateDaySelectors() {
     this.keyDaySelectors();
     this.fillDaySelectors();
     this.fillDayGroups();
+    this.dayGroups = clone(this.dayGroups);
+    this.alarms = clone(this.alarms);
+    return {
+      alarms: this.alarms,
+      daySelectors: this.daySelectors,
+      dayGroups: this.dayGroups
+    };
   }
   updateAlarms() {
     this.alarms.forEach(alarm => {
       alarm.action = this.actionsObj[alarm.action.name];
       const days = alarm.days;
       if (days.type !== 'day-group') return;
-      days.group = this.dayGroupsObj[days.group.name];
+      const group = this.dayGroupsObj[days.group.name];
+      if (group != null) {
+        days.group = group;
+      }
     });
+    return {
+      alarms: this.alarms
+    };
   }
   updateDayGroups() {
     this.keyDayGroups();
     this.fillDayGroups();
     this.fillAlarmsDayGroups();
+    this.alarms = clone(this.alarms);
+    return {
+      alarms: this.alarms,
+      dayGroups: this.dayGroups
+    };
+  }
+  async getAlarms() {
+    this.alarms = await this.api.getAlarms();
+    return this.updateAlarms();
+  }
+  async getDaySelectors() {
+    this.daySelectors = await this.api.getDaySelectors();
+    return this.updateDaySelectors();
+  }
+  async getDayGroups() {
+    this.dayGroups = await this.api.getDayGroups();
+    return this.updateDayGroups();
+  }
+  async getActions() {
+    this.actions = await this.api.getActions();
+    return this.updateActions();
   }
   fillAlarmsDayGroups() {
     this.alarms.forEach(alarm => {
       const days = alarm.days;
       if (days.type !== 'day-group') return;
-      days.group = this.dayGroupsObj[days.group.name];
+      const group = this.dayGroupsObj[days.group.name];
+      if (group != null) {
+        days.group = group;
+      }
     });
   }
   fillAlarmsActions() {
     this.alarms.forEach(alarm => {
-      alarm.action = this.actionsObj[alarm.action.name];
+      const action = this.actionsObj[alarm.action.name]
+      if (action != null) {
+        alarm.action = action;
+      }
     });
   }
   fillActions() {
     this.actions.forEach(action => {
       if (action.type !== 'composite') return;
       action.subActions.forEach(subAction => {
-        subAction.action = this.actionsObj[subAction.action.name];
+        const action = this.actionsObj[subAction.action.name];
+        if (action != null) {
+          subAction.action = action;
+        }
       });
     });
   }
@@ -111,14 +169,20 @@ export class AlarmApiWrapper {
     this.dayGroups.forEach(dg => {
       const days = dg.days;
       for (let i = 0; i < days.length; ++i) {
-        days[i] = this.dayGroupsObj[days[i].name];
+        const ds = this.daySelectorsObj[days[i].name];
+        if (ds != null) {
+          days[i] = ds;
+        }
       }
     });
   }
   fillDaySelectors() {
     this.daySelectors.forEach(ds => {
       if (ds.type !== 'drtod') return;
-      ds.relativeDay = this.daySelectorsObj[ds.relativeDay.name];
+      const rd = this.daySelectorsObj[ds.relativeDay.name]
+      if (rd != null) {
+        ds.relativeDay = rd;
+      }
     });
   }
 }

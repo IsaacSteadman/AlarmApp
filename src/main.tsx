@@ -14,8 +14,9 @@ import DateRangeIcon from '@material-ui/icons/DateRange';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { DayGroups } from './ui/DayGroups';
 import { DaySelectors } from './ui/Days';
-import { AlarmApi, AlarmApiWrapper } from '../common/AlarmApi';
+import { AlarmApi, AlarmApiWrapper, BasicAlarmApi } from '../common/AlarmApi';
 import { Action } from '../common/models/Action';
+import { Actions } from './ui/Actions';
 
 function tabProps(idx: number) {
   return {
@@ -202,6 +203,42 @@ const dayGroups: DayGroup[] = [
   }
 ];
 
+const actions: Action[] = [
+  {
+    type: 'gpio-set',
+    name: 'alarm on',
+    description: 'turns alarm pin on',
+    pin: 0,
+    value: true
+  },
+  {
+    type: 'gpio-set',
+    name: 'alarm off',
+    description: 'turns alarm pin off',
+    pin: 0,
+    value: false
+  },
+  {
+    type: 'composite',
+    name: 'hello',
+    description: 'triggers alarm on then off',
+    subActions: [
+      {
+        action: {
+          name: 'alarm on'
+        },
+        duration: 250
+      },
+      {
+        action: {
+          name: 'alarm off'
+        },
+        duration: 250
+      }
+    ]
+  }
+];
+
 interface CommonProps {
 }
 
@@ -223,7 +260,7 @@ class ReactApp extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentTab: 2,
+      currentTab: 1,
       alarms: [],
       daySelectors: [],
       dayGroups: [],
@@ -268,19 +305,50 @@ class ReactApp extends React.Component<Props, State> {
         <div {...tabPanelProps(currentTab, 0)}><Dashboard /></div>
         <div {...tabPanelProps(currentTab, 1)}><Actions
           actions={actions}
+          onCreateAction={async (action) => {
+            try {
+              await api.api.postAction(action);
+              this.setState(await api.getActions());
+            } catch (exc) {
+              this.setState({
+                snackMsg: 'failed to create new action: ' + exc,
+                snackState: 'error'
+              });
+              return false;
+            }
+            this.setState({
+              snackMsg: 'created action named: ' + action.name,
+              snackState: 'success'
+            });
+            return true;
+          }}
+          onEditAction={async (action) => {
+            try {
+            await api.api.putAction(action);
+            this.setState(await api.getActions());
+            } catch (exc) {
+              this.setState({
+                snackMsg: 'failed to change action: ' + exc,
+                snackState: 'error'
+              });
+              return false;
+            }
+            this.setState({
+              snackMsg: 'changed action named: ' + action.name,
+              snackState: 'success'
+            });
+            return true;
+          }}
         /></div>
         <div {...tabPanelProps(currentTab, 2)}><Alarms
           alarms={alarms}
           dayGroups={dayGroups}
+          actions={actions}
           onCreateAlarm={
-            async(alarm) => {
+            async (alarm) => {
               try {
-                const alarms = await api.api.postAlarm(alarm);
-                this.setState({
-                  snackState: 'success',
-                  snackMsg: 'successfully added alarm'
-                });
-                return true;
+                await api.api.postAlarm(alarm);
+                this.setState(await api.getAlarms());
               } catch (exc) {
                 this.setState({
                   snackState: 'error',
@@ -288,24 +356,30 @@ class ReactApp extends React.Component<Props, State> {
                 });
                 return false;
               }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'created alarm named: ' + alarm.name
+              });
+              return true;
             }
           }
           onEditAlarm={
-            async(alarm) => {
+            async (alarm) => {
               try {
-                const alarms = await api.api.putAlarm(alarm);
-                this.setState({
-                  snackState: 'success',
-                  snackMsg: 'successfully added alarm'
-                });
-                return true;
+                await api.api.putAlarm(alarm);
+                this.setState(await api.getAlarms());
               } catch (exc) {
                 this.setState({
                   snackState: 'error',
-                  snackMsg: '' + exc
+                  snackMsg: 'failed' + exc
                 });
                 return false;
               }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'changed alarm named: ' + alarm.name
+              });
+              return true;
             }
           }
         /></div>
@@ -317,12 +391,12 @@ class ReactApp extends React.Component<Props, State> {
         /></div>
         <Snackbar
           open={snackState === 'error'}
-          onClose={() => (this.setState({snackState: 'none'}))}
-          message={snackMsg}/>
+          onClose={() => (this.setState({ snackState: 'none' }))}
+          message={snackMsg} />
         <Snackbar
           open={snackState === 'success'}
-          onClose={() => (this.setState({snackState: 'none'}))}
-          message={snackMsg}/>
+          onClose={() => (this.setState({ snackState: 'none' }))}
+          message={snackMsg} />
       </div>
     );
   }
@@ -330,7 +404,7 @@ class ReactApp extends React.Component<Props, State> {
 
 function Wrapper(props) {
   return <MuiPickersUtilsProvider utils={DateFnsUtils}>
-    <ReactApp />
+    <ReactApp api={new AlarmApiWrapper(new BasicAlarmApi(alarms, daySelectors, dayGroups, actions))} />
   </MuiPickersUtilsProvider>
 }
 

@@ -11,15 +11,6 @@ import { BaseAction, Action, ActionType, HttpMethod, HttpCredentials, HttpHeader
 import { hexStringToUint8Array, uint8ArrayToHexString } from '../../common/utils';
 import { SimpleDataTable, RowType } from './SimpleDataTable';
 
-export interface CommonProps {
-}
-
-export interface Props extends CommonProps {
-  actions: Action[];
-  onCreateAction: (action: Action) => Promise<boolean> | boolean; // return true to confirm close
-  onEditAction: (action: Action) => Promise<boolean> | boolean;
-}
-
 interface KeyValueRow extends RowType {
   key: string;
   value: string;
@@ -76,6 +67,15 @@ function compositeSubActionsTosubActionRows(rows: CompositeSubActionType[]): Sub
     actionName: row.action.name,
     duration: row.duration
   }));
+}
+
+export interface CommonProps {
+}
+
+export interface Props extends CommonProps {
+  actions: Action[];
+  onCreateAction: (action: Action) => Promise<boolean> | boolean; // return true to confirm close
+  onEditAction: (action: Action) => Promise<boolean> | boolean;
 }
 
 export interface State extends CommonProps {
@@ -402,7 +402,7 @@ export class ActionEdit extends React.Component<Props, State> {
           dialogType === 'gpio-set' ? (
             <>
               <FormControlLabel
-                label="Action"
+                label="GPIO Pin"
                 labelPlacement="top"
                 control={<Input value={gpioPin} onChange={(e) => {
                   this.setState({
@@ -411,10 +411,10 @@ export class ActionEdit extends React.Component<Props, State> {
                 }} type="number" name="gpioPin" />}
               />
               <FormControlLabel
-                label="Action Type"
+                label="GPIO Value"
                 labelPlacement="top"
                 control={
-                  <Select value={gpioValue} onChange={(e) => {
+                  <Select value={gpioValue ? '1' : '0'} onChange={(e) => {
                     this.setState({
                       gpioValue: !!+e.target.value
                     });
@@ -669,7 +669,7 @@ export class ActionEdit extends React.Component<Props, State> {
                     type="text"
                     name="fileOffset"
                     value={fileOffset}
-                    inputProps={{step: 1}}
+                    inputProps={{ step: 1 }}
                     onChange={e => this.setState({ fileOffset: +e.target.value })}
                   />
                 }
@@ -693,41 +693,55 @@ export class ActionEdit extends React.Component<Props, State> {
         }
         {
           dialogType === 'composite' ? (
-            <>
-              <SimpleDataTable
-                colSpecs={[
-                  {
-                    attrName: 'actionName',
-                    defaultValue: actions.length ? actions[0].name : '',
-                    dispName: 'Action Name',
-                    type: 'select',
-                    options: actions.map(action => ({ dispName: action.name, valueName: action.name }))
-                  },
-                  {
-                    attrName: 'duration',
-                    dispName: 'Duration (milliseconds)',
-                    type: 'number',
-                    defaultValue: 3600000,
-                    min: 0,
-                    step: 1,
-                    max: null
-                  }
-                ]}
-                rows={compositeSubActions}
-                onRowsChanged={
-                  (prevRows: SubActionRow[], newRows: SubActionRow[]) => this.setState({ compositeSubActions: newRows })
+            <SimpleDataTable
+              colSpecs={[
+                {
+                  attrName: 'actionName',
+                  defaultValue: actions.length ? actions[0].name : '',
+                  dispName: 'Action Name',
+                  type: 'select',
+                  options: actions.map(action => ({ dispName: action.name, valueName: action.name }))
+                },
+                {
+                  attrName: 'duration',
+                  dispName: 'Duration (milliseconds)',
+                  type: 'number',
+                  defaultValue: 3600000,
+                  min: 0,
+                  step: 1,
+                  max: null
                 }
-              />
-            </>
+              ]}
+              rows={compositeSubActions}
+              onRowsChanged={
+                (prevRows: SubActionRow[], newRows: SubActionRow[]) => this.setState({ compositeSubActions: newRows })
+              }
+            />
           ) : ''
         }
-        <IconButton disabled={disableSubmit} hidden={show !== 'edit'} style={{ color: 'green' }} onClick={() => this.editAction()}>
-          <DoneIcon />
-        </IconButton>
-        <IconButton hidden={show !== 'edit'} style={{ color: 'red' }} onClick={() => this.setState({ show: 'none' })}>
-          <CloseIcon />
-        </IconButton>
-        <Button disabled={disableSubmit} hidden={show !== 'create'} variant="contained" color="primary" onClick={() => this.createAction()}>Add</Button>
+        {
+          show === 'edit' ? (
+            <Grid>
+              <IconButton disabled={disableSubmit} hidden={show !== 'edit'} style={{ color: 'green' }} onClick={() => this.editAction()}>
+                <DoneIcon />
+              </IconButton>
+              <IconButton hidden={show !== 'edit'} style={{ color: 'red' }} onClick={() => this.setState({ show: 'none' })}>
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+          ) : ''
+        }
+        {
+          show === 'create' ? (
+            <Button
+              disabled={disableSubmit}
+              hidden={show !== 'create'}
+              variant="contained"
+              color="primary"
+              onClick={() => this.createAction()}
+            >Add</Button>
+          ) : ''
+        }
       </Dialog>);
   }
 }
