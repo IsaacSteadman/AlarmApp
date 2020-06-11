@@ -91,7 +91,7 @@ export class Actions extends React.Component<Props, State> {
                     }
                   })()}
                   <TableCell>
-                    <IconButton style={{ color: 'black' }}>
+                    <IconButton style={{ color: 'black' }} onClick={() => actionEdit.openAction(action)}>
                       <EditIcon />
                     </IconButton>
                   </TableCell>

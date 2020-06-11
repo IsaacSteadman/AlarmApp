@@ -179,6 +179,7 @@ export class AlarmEdit extends React.Component<Props, State> {
         alarmPriority: alarm.priority
       });
       if (alarm.days.type === 'dow') {
+        console.log('alarm.name =', alarm.name, 'alarm.days.daysOfWeek =', alarm.days.daysOfWeek);
         this.setState({
           alarmIsSunday: alarm.days.daysOfWeek[0],
           alarmIsMonday: alarm.days.daysOfWeek[1],
@@ -299,7 +300,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsSunday}
+                    checked={alarmIsSunday}
                     onChange={e => this.setState({ alarmIsSunday: e.target.checked })}
                   />
                 }
@@ -309,7 +310,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsMonday}
+                    checked={alarmIsMonday}
                     onChange={e => this.setState({ alarmIsMonday: e.target.checked })}
                   />
                 }
@@ -319,7 +320,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsTuesday}
+                    checked={alarmIsTuesday}
                     onChange={e => this.setState({ alarmIsTuesday: e.target.checked })}
                   />
                 }
@@ -329,7 +330,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsWednesday}
+                    checked={alarmIsWednesday}
                     onChange={e => this.setState({ alarmIsWednesday: e.target.checked })}
                   />
                 }
@@ -339,7 +340,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsThursday}
+                    checked={alarmIsThursday}
                     onChange={e => this.setState({ alarmIsThursday: e.target.checked })}
                   />
                 }
@@ -349,7 +350,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsFriday}
+                    checked={alarmIsFriday}
                     onChange={e => this.setState({ alarmIsFriday: e.target.checked })}
                   />
                 }
@@ -359,7 +360,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                 labelPlacement="start"
                 control={
                   <Checkbox
-                    value={alarmIsSaturday}
+                    checked={alarmIsSaturday}
                     onChange={e => this.setState({ alarmIsSaturday: e.target.checked })}
                   />
                 }
