@@ -246,7 +246,7 @@ export class AlarmEdit extends React.Component<Props, State> {
             >
               {
                 actions.map(action => (
-                  <option value={action.name}>{action.name}</option>
+                  <option key={`alarm-edit-action-opt-${action.name}`} value={action.name}>{action.name}</option>
                 ))
               }
             </Select>
@@ -374,7 +374,7 @@ export class AlarmEdit extends React.Component<Props, State> {
                   <Select value={alarmDayGroup} onChange={e => this.setState({ alarmDayGroup: e.currentTarget.value as string })}>
                     {
                       dayGroups.map(dayGroup => (
-                        <option value={dayGroup.name}>{dayGroup.name}</option>
+                        <option key={`alarm-edit-day-group-opt-${dayGroup.name}`} value={dayGroup.name}>{dayGroup.name}</option>
                       ))
                     }
                   </Select>

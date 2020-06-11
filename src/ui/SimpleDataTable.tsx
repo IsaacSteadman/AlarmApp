@@ -44,7 +44,8 @@ export type ColSpec = NumberColSpec | TextColSpec | SelectColSpec;
 
 function alterEditingState(rows: RowType[], row: number, attrName: string, newValue: any): RowType[] {
   const obj = { ...rows[row], editing: { ...rows[row].editing } };
-  obj[attrName] = newValue;
+  obj.editing[attrName] = newValue;
+  console.log('newObj =', obj);
   return rows.slice(0, row).concat([obj]).concat(rows.slice(row + 1));
 }
 
@@ -89,17 +90,18 @@ export interface Props extends CommonProps {
   colSpecs: ColSpec[];
   rows: RowType[];
   onRowsChanged: (prevRows: RowType[], newRows: RowType[]) => any;
+  keyName: string;
 }
 
 export interface State extends CommonProps {
 }
 
 export class SimpleDataTable extends React.Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
   }
   render() {
-    const { colSpecs, rows, onRowsChanged } = this.props;
+    const { keyName, colSpecs, rows, onRowsChanged } = this.props;
     return (
       <TableContainer>
         <Table>
@@ -107,7 +109,7 @@ export class SimpleDataTable extends React.Component<Props, State> {
             <TableRow>
               {
                 (() => colSpecs.map(spec => (
-                  <TableCell>{spec.dispName}</TableCell>
+                  <TableCell key={`simple-table-${keyName}-header-col-${spec.attrName}`}>{spec.dispName}</TableCell>
                 ))
                 )()
               }
@@ -116,29 +118,29 @@ export class SimpleDataTable extends React.Component<Props, State> {
           </TableHead>
           <TableBody>
             {
-              rows.map((row, idx) => (
+              rows.map((row, rowIdx) => (
                 row.editing == null ? (
-                  <TableRow>
+                  <TableRow key={`simple-table-${keyName}-row-${rowIdx}`}>
                     {
-                      colSpecs.map(spec => (
-                        <TableCell>{row[spec.attrName]}</TableCell>
+                      colSpecs.map((spec, colIdx) => (
+                        <TableCell key={`simple-table-${keyName}-row-${rowIdx}-col${colIdx}`}>{row[spec.attrName]}</TableCell>
                       ))
                     }
                     <TableCell>
-                      <IconButton style={{ color: 'black' }} onClick={() => onRowsChanged(rows, alterStateSetEditing(rows, idx))}>
+                      <IconButton style={{ color: 'black' }} onClick={() => onRowsChanged(rows, alterStateSetEditing(rows, rowIdx))}>
                         <EditIcon />
                       </IconButton>
                     </TableCell>
                     <TableCell>
-                      <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateDeleteRow(rows, idx))}>
+                      <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateDeleteRow(rows, rowIdx))}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
                 ) : (
-                    <TableRow>
+                    <TableRow key={`simple-table-${keyName}-row-${rowIdx}`}>
                       {
-                        colSpecs.map(spec => {
+                        colSpecs.map((spec, colIdx) => {
                           if (spec.type === 'number') {
                             const objMinMaxStep: { min?: number, max?: number, step?: number } = {};
                             if (spec.min != null) {
@@ -151,31 +153,44 @@ export class SimpleDataTable extends React.Component<Props, State> {
                               objMinMaxStep.step = spec.step;
                             }
                             return (
-                              <TableCell>
+                              <TableCell key={`simple-table-${keyName}-row-${rowIdx}-col${colIdx}`}>
                                 <Input
                                   value={row.editing[spec.attrName]}
-                                  onChange={(e) => onRowsChanged(rows, alterEditingState(rows, idx, spec.attrName, +e.target.value))}
+                                  onChange={(e) => onRowsChanged(rows, alterEditingState(rows, rowIdx, spec.attrName, +e.target.value))}
                                   inputProps={objMinMaxStep}
                                 />
                               </TableCell>
                             );
                           } else if (spec.type === 'text') {
                             return (
-                              <TableCell>
+                              <TableCell key={`simple-table-${keyName}-row-${rowIdx}-col${colIdx}`}>
                                 <Input
                                   value={row.editing[spec.attrName]}
-                                  onChange={(e) => onRowsChanged(rows, alterEditingState(rows, idx, spec.attrName, e.target.value))}
+                                  onChange={(e) => onRowsChanged(rows, alterEditingState(rows, rowIdx, spec.attrName, e.target.value))}
                                 />
                               </TableCell>
                             );
                           } else if (spec.type === 'select') {
+                            console.log('editing =', row.editing);
+                            console.log('spec.attrName =', spec.attrName)
+                            console.log('select value=' + row.editing[spec.attrName]);
                             return (
-                              <TableCell>
-                                <Select value={row.editing[spec.attrName]} onChange={(e) => onRowsChanged(rows, alterEditingState(rows, idx, spec.attrName, e.target.value))}>
+                              <TableCell key={`simple-table-${keyName}-row-${rowIdx}-col${colIdx}`}>
+                                <Select
+                                  value={row.editing[spec.attrName]}
+                                  onChange={
+                                    (e) => {
+                                      const newRows = alterEditingState(rows, rowIdx, spec.attrName, e.target.value);
+                                      onRowsChanged(rows, newRows);
+                                    }}
+                                >
                                   {
-                                    spec.options.map(option => (
-                                      <option value={option.valueName}>{option.dispName}</option>
-                                    ))
+                                    spec.options.map((option, optIdx) => {
+                                      console.log('option =', option);
+                                      return (
+                                        <option key={`simple-table-${keyName}-row-${rowIdx}-col${colIdx}-opt-${optIdx}`} value={option.valueName}>{option.dispName}</option>
+                                      );
+                                    })
                                   }
                                 </Select>
                               </TableCell>
@@ -186,12 +201,12 @@ export class SimpleDataTable extends React.Component<Props, State> {
                         })
                       }
                       <TableCell>
-                        <IconButton style={{ color: 'green' }} onClick={() => onRowsChanged(rows, alterStateSaveEditing(rows, idx))}>
+                        <IconButton style={{ color: 'green' }} onClick={() => onRowsChanged(rows, alterStateSaveEditing(rows, rowIdx))}>
                           <DoneIcon />
                         </IconButton>
                       </TableCell>
                       <TableCell>
-                        <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateCancelEditing(rows, idx))}>
+                        <IconButton style={{ color: 'red' }} onClick={() => onRowsChanged(rows, alterStateCancelEditing(rows, rowIdx))}>
                           <CloseIcon />
                         </IconButton>
                       </TableCell>

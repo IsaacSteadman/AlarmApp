@@ -385,9 +385,86 @@ class ReactApp extends React.Component<Props, State> {
         /></div>
         <div {...tabPanelProps(currentTab, 3)}><DayGroups
           dayGroups={dayGroups}
+          daySelectors={daySelectors}
+          onCreateDayGroup={
+            async (dayGroup) => {
+              try {
+                await api.api.postDayGroup(dayGroup);
+                this.setState(await api.getDayGroups());
+              } catch (exc) {
+                this.setState({
+                  snackState: 'error',
+                  snackMsg: 'failed' + exc
+                });
+                return false;
+              }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'created day group named: ' + dayGroup.name
+              });
+              return true;
+            }
+          }
+          onEditDayGroup={
+            async (dayGroup) => {
+              try {
+                await api.api.putDayGroup(dayGroup);
+                this.setState(await api.getDayGroups());
+              } catch (exc) {
+                this.setState({
+                  snackState: 'error',
+                  snackMsg: 'failed' + exc
+                });
+                return false;
+              }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'changed day group named: ' + dayGroup.name
+              });
+              return true;
+            }
+          }
         /></div>
         <div {...tabPanelProps(currentTab, 4)}><DaySelectors
           daySelectors={daySelectors}
+          onCreateDaySelector={
+            async (ds) => {
+              try {
+                await api.api.postDaySelector(ds);
+                this.setState(await api.getDaySelectors());
+              } catch (exc) {
+                this.setState({
+                  snackState: 'error',
+                  snackMsg: 'failed' + exc
+                });
+                return false;
+              }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'created day selector named: ' + ds.name
+              });
+              return true;
+            }
+          }
+          onEditDaySelector={
+            async (ds) => {
+              try {
+                await api.api.putDaySelector(ds);
+                this.setState(await api.getDaySelectors());
+              } catch (exc) {
+                this.setState({
+                  snackState: 'error',
+                  snackMsg: 'failed' + exc
+                });
+                return false;
+              }
+              this.setState({
+                snackState: 'success',
+                snackMsg: 'changed day selector named: ' + ds.name
+              });
+              return true;
+            }
+          }
         /></div>
         <Snackbar
           open={snackState === 'error'}

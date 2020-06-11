@@ -27,7 +27,7 @@ export interface CustomDayGroupSelector extends BaseDayGroupSelector {
 
 export interface DayGroup {
   name: string;
-  days: (BaseDaySelector | { name: string })[];
+  days: (DaySelector | { name: string })[];
 }
 
 interface BaseDaySelector {
@@ -88,6 +88,7 @@ export interface DayRelativeToOtherDaySelector extends BaseDaySelector {
 }
 
 export type DaySelector = ExactDateDaySelector | DayOfNthWeekOfMonthSelector | NthDayOfWeekOfMonthSelector | DayMustBeObservedOnWeekDaySelector | DayOfWeekAfterFullMoonAfterDayOfMonthSelector | DayRelativeToOtherDaySelector;
+export type DaySelectorType = 'exact-date' | 'donwom' | 'ndowom' | 'dmboowd' | 'dowafmadom' | 'drtod';
 
 export type DayGroupSelector = WeekDayGroupSelector | CustomDayGroupSelector;
 
@@ -272,7 +273,7 @@ export function findDayInYear(yearNum: number, ds: DaySelector): Date {
     let d = new Date(yearNum, ds.month, ds.day + 1);
     if (d.getDay() === 0) {
       d = addDays(d, 1);
-    } else if (d.getDate() === 6) {
+    } else if (d.getDay() === 6) {
       d = subDays(d, 1);
     }
     return d;

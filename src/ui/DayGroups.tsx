@@ -6,15 +6,19 @@ import { KeyboardTimePicker } from '@material-ui/pickers';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import { DayGroup } from '../../common/models/Alarm';
+import { DayGroup, DaySelector } from '../../common/models/Alarm';
 import { padStart } from 'lodash';
 import { bottomRightFabStyle } from './utils';
+import { DayGroupEdit } from './DayGroupEdit';
 
 export interface CommonProps {
 }
 
 export interface Props extends CommonProps {
   dayGroups: DayGroup[];
+  daySelectors: DaySelector[];
+  onCreateDayGroup: (dayGroup: DayGroup) => Promise<boolean> | boolean; // return true to confirm close
+  onEditDayGroup: (dayGroup: DayGroup) => Promise<boolean> | boolean;
 }
 
 export interface State extends CommonProps {
@@ -26,7 +30,8 @@ export class DayGroups extends React.Component<Props, State> {
     this.state = {};
   }
   render() {
-    const { dayGroups } = this.props;
+    const { dayGroups, daySelectors, onCreateDayGroup, onEditDayGroup } = this.props;
+    let dayGroupEdit: DayGroupEdit;
     return (
       <TableContainer>
         <Table className="actionTable">
@@ -40,11 +45,11 @@ export class DayGroups extends React.Component<Props, State> {
           <TableBody>
             {
               dayGroups.map(dayGroup => (
-                <TableRow>
+                <TableRow key={`day-group-row-${dayGroup.name}`}>
                   <TableCell>{dayGroup.name}</TableCell>
                   <TableCell>{dayGroup.days.map(x => x.name).join(',')}</TableCell>
                   <TableCell>
-                    <IconButton style={{ color: 'black' }}>
+                    <IconButton style={{ color: 'black' }} onClick={() => dayGroupEdit.openDayGroup(dayGroup)}>
                       <EditIcon />
                     </IconButton>
                   </TableCell>
@@ -58,7 +63,13 @@ export class DayGroups extends React.Component<Props, State> {
             }
           </TableBody>
         </Table>
-        <Fab color="primary" style={{ ...bottomRightFabStyle }}>
+        <DayGroupEdit
+          daySelectors={daySelectors}
+          onCreateDayGroup={onCreateDayGroup}
+          onEditDayGroup={onEditDayGroup}
+          ref={e => dayGroupEdit = e}
+        />
+        <Fab color="primary" style={{ ...bottomRightFabStyle }} onClick={() => dayGroupEdit.openDayGroup(null)}>
           <AddIcon />
         </Fab>
       </TableContainer>

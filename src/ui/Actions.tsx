@@ -16,7 +16,7 @@ export interface CommonProps {
 }
 
 export interface Props extends CommonProps {
-  actions: Action[]
+  actions: Action[];
   onCreateAction: (action: Action) => Promise<boolean> | boolean; // return true to confirm close
   onEditAction: (action: Action) => Promise<boolean> | boolean;
 }
@@ -47,7 +47,7 @@ export class Actions extends React.Component<Props, State> {
           <TableBody>
             {
               actions.map(action => (
-                <TableRow>
+                <TableRow key={`actions-row-${action.name}`}>
                   <TableCell>{action.name}</TableCell>
                   <TableCell>{action.description}</TableCell>
                   {(() => {

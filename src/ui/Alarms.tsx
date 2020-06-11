@@ -64,7 +64,7 @@ export class Alarms extends React.Component<Props, State> {
             <TableBody>
               {alarms.filter(alarm => alarm.type === 'basic').map(alarm => {
                 return (
-                  <TableRow>
+                  <TableRow key={`alarms-row-${alarm.name}`}>
                     <TableCell>
                       {alarm.name}
                     </TableCell>

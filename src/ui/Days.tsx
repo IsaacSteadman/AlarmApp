@@ -9,12 +9,15 @@ import EditIcon from '@material-ui/icons/Edit';
 import { DayGroup, DaySelector, WeekDayGroupSelector, DayOfNthWeekOfMonthSelector, NthDayOfWeekOfMonthSelector, ExactDateDaySelector, DayMustBeObservedOnWeekDaySelector, DayRelativeToOtherDaySelector, DayOfWeekAfterFullMoonAfterDayOfMonthSelector, dayToString, selectNextDay } from '../../common/models/Alarm';
 import { padStart } from 'lodash';
 import { bottomRightFabStyle } from './utils';
+import { DaySelectorEdit } from './DaySelectorEdit';
 
 export interface CommonProps {
 }
 
 export interface Props extends CommonProps {
   daySelectors: DaySelector[];
+  onCreateDaySelector: (ds: DaySelector) => Promise<boolean> | boolean;
+  onEditDaySelector: (ds: DaySelector) => Promise<boolean> | boolean;
 }
 
 export interface State extends CommonProps {
@@ -26,7 +29,8 @@ export class DaySelectors extends React.Component<Props, State> {
     this.state = {};
   }
   render() {
-    const { daySelectors } = this.props;
+    const { daySelectors, onCreateDaySelector, onEditDaySelector } = this.props;
+    let daySelectorEdit: DaySelectorEdit;
     return (
       <TableContainer>
         <Table className="actionTable">
@@ -41,12 +45,12 @@ export class DaySelectors extends React.Component<Props, State> {
           <TableBody>
             {
               daySelectors.map(day => (
-                <TableRow>
+                <TableRow key={`days-row-${day.name}`}>
                   <TableCell>{day.name}</TableCell>
                   <TableCell>{dayToString(day)}</TableCell>
                   <TableCell>{'' + selectNextDay(new Date(), day)}</TableCell>
                   <TableCell>
-                    <IconButton style={{ color: 'black' }}>
+                    <IconButton style={{ color: 'black' }} onClick={() => daySelectorEdit.openDaySelector(day)}>
                       <EditIcon />
                     </IconButton>
                   </TableCell>
@@ -60,7 +64,13 @@ export class DaySelectors extends React.Component<Props, State> {
             }
           </TableBody>
         </Table>
-        <Fab color="primary" style={bottomRightFabStyle}>
+        <DaySelectorEdit
+          daySelectors={daySelectors}
+          onCreateDaySelector={onCreateDaySelector}
+          onEditDaySelector={onEditDaySelector}
+          ref={e => daySelectorEdit = e}
+        />
+        <Fab color="primary" style={bottomRightFabStyle} onClick={() => daySelectorEdit.openDaySelector(null)}>
           <AddIcon />
         </Fab>
       </TableContainer>

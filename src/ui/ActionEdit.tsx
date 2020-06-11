@@ -60,7 +60,7 @@ function subActionRowsToCompositeSubActions(rows: SubActionRow[]): CompositeSubA
   }));
 }
 
-function compositeSubActionsTosubActionRows(rows: CompositeSubActionType[]): SubActionRow[] {
+function compositeSubActionsToSubActionRows(rows: CompositeSubActionType[]): SubActionRow[] {
   return rows.map(row => ({
     editing: null,
     hasBeenCompletedOnce: true,
@@ -316,7 +316,7 @@ export class ActionEdit extends React.Component<Props, State> {
       }
     } else if (action.type === 'composite') {
       this.setState({
-        compositeSubActions: compositeSubActionsTosubActionRows(action.subActions)
+        compositeSubActions: compositeSubActionsToSubActionRows(action.subActions)
       });
     }
   }
@@ -364,7 +364,7 @@ export class ActionEdit extends React.Component<Props, State> {
         fullWidth={true}
         maxWidth="xs"
       >
-        <DialogTitle>Create Action</DialogTitle>
+        <DialogTitle>{show === 'edit' ? 'Edit' : 'Create'} Action</DialogTitle>
         <FormControlLabel
           label="Name"
           labelPlacement="top"
@@ -508,6 +508,7 @@ export class ActionEdit extends React.Component<Props, State> {
                 ]}
                 rows={httpHeaders}
                 style={httpHeadersValid ? validStyle : invalidStyle}
+                keyName="action-edit1"
                 onRowsChanged={
                   (prevRows: KeyValueRow[], newRows: KeyValueRow[]) => (
                     this.setState({
@@ -524,6 +525,7 @@ export class ActionEdit extends React.Component<Props, State> {
                 ]}
                 rows={httpCredentials}
                 style={httpCredentialsValid ? validStyle : invalidStyle}
+                keyName="action-edit2"
                 onRowsChanged={
                   (prevRows: KeyValueRow[], newRows: KeyValueRow[]) => (
                     this.setState({
@@ -712,6 +714,7 @@ export class ActionEdit extends React.Component<Props, State> {
                   max: null
                 }
               ]}
+              keyName="action-edit3"
               rows={compositeSubActions}
               onRowsChanged={
                 (prevRows: SubActionRow[], newRows: SubActionRow[]) => this.setState({ compositeSubActions: newRows })
